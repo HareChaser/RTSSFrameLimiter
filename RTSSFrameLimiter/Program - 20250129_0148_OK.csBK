@@ -1,0 +1,102 @@
+using System;
+using System.Diagnostics;
+using System.Drawing;
+using System.Windows.Forms;
+
+namespace RTSSFrameLimiter
+{
+    public class MainForm : Form
+    {
+        private TextBox exeTextBox;
+        private TextBox customFpsTextBox;
+        private Button customFpsButton;
+        private string[] fpsOptions = { "30", "48", "60", "90", "120" };
+
+        public MainForm()
+        {
+            Text = "RTSS Frame Limiter";
+            Size = new Size(400, 500);
+            Font = new Font("Arial", 14);
+            FormBorderStyle = FormBorderStyle.FixedSingle;
+            MaximizeBox = false;
+
+            Label exeLabel = new Label { Text = "Game EXE:", Location = new Point(10, 10), AutoSize = true };
+            exeTextBox = new TextBox { Location = new Point(140, 10), Width = 230 };
+            exeTextBox.Click += (s, e) => ShowTouchKeyboard();
+
+            Label fpsLabel = new Label { Text = "Custom FPS:", Location = new Point(10, 50), AutoSize = true };
+            customFpsTextBox = new TextBox { Location = new Point(140, 50), Width = 100 };
+            customFpsTextBox.Click += (s, e) => ShowTouchKeyboard();
+            customFpsButton = new Button { Text = "Set Custom", Location = new Point(260, 50), Width = 120, Height = 40 };
+            customFpsButton.Click += (s, e) => SetFpsLimit(customFpsTextBox.Text);
+
+            Controls.Add(exeLabel);
+            Controls.Add(exeTextBox);
+            Controls.Add(fpsLabel);
+            Controls.Add(customFpsTextBox);
+            Controls.Add(customFpsButton);
+
+            int yOffset = 100;
+            foreach (string fps in fpsOptions)
+            {
+                Button fpsButton = new Button { Text = fps + " FPS", Location = new Point(10, yOffset), Width = 360, Height = 40 };
+                fpsButton.Click += (s, e) => SetFpsLimit(fps);
+                Controls.Add(fpsButton);
+                yOffset += 50;
+            }
+        }
+
+        private void SetFpsLimit(string fps)
+        {
+            if (string.IsNullOrWhiteSpace(exeTextBox.Text))
+            {
+                MessageBox.Show("Please enter the game's EXE name.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            string exeName = exeTextBox.Text.Trim();
+            string command = $"property:set {exeName} FramerateLimit {fps}";
+
+            ProcessStartInfo psi = new ProcessStartInfo
+            {
+                FileName = "rtss-cli.exe",
+                Arguments = command,
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                CreateNoWindow = true
+            };
+
+            try
+            {
+                using (Process process = Process.Start(psi))
+                {
+                    process.WaitForExit();
+                }
+                MessageBox.Show($"FPS limit set to {fps} for {exeName}", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error: " + ex.Message, "Execution Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void ShowTouchKeyboard()
+        {
+            ProcessStartInfo psi = new ProcessStartInfo
+            {
+                FileName = "tabtip.exe",
+                UseShellExecute = true
+            };
+            Process.Start(psi);
+        }
+
+        [STAThread]
+        static void Main()
+        {
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+            Application.Run(new MainForm());
+        }
+    }
+}
