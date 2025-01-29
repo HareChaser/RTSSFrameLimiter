@@ -1,6 +1,6 @@
 # RTSS Frame Limiter
 
-RTSSFrameLimiter is a simple UI tool that uses `rtss-cli` to set a frame rate limit for games.
+RTSS Frame Limiter is a simple UI tool that uses `rtss-cli` to set a frame rate limit for games.
 
 ![alt text](https://i.imgur.com/oldZIHd.png)
 
