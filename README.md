@@ -2,6 +2,8 @@
 
 RTSSFrameLimiter is a simple UI tool that uses `rtss-cli` to set a frame rate limit for games.
 
+![alt text](https://i.imgur.com/oldZIHd.png)
+
 ## Preparation
 
 1. **Install .NET 8.0**  
